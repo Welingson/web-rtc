@@ -1,6 +1,6 @@
 # WEB RTC
 
-App de ligação usando webrtc
+App de chamada de voz usando webrtc
 
 ## Como instalar
 
