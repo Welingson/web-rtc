@@ -17,4 +17,3 @@ talvez não funcione corretamente para outras versões
 ## Como usar
 
 - Dentro de backend\src\db\db_user.json há alguns usuários fictícios com login e senha, execute o frontend no navegador e insira o usuário e senha que contém no json
-- 
