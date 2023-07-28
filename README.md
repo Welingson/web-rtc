@@ -11,9 +11,7 @@ App de chamada de voz usando webrtc
 
 ## Observação
 
--Este projeto está no início do seu desenvolvimento
-
-
+Este projeto está no início do seu desenvolvimento
 
 ## Como usar
 
