@@ -51,10 +51,6 @@ export function Home() {
         }
       }
 
-      // if (await getUserMedia()) {
-
-      // }
-
     }
 
     async function answerCall(user) {
