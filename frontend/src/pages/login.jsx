@@ -26,8 +26,6 @@ export function Login() {
 
             updateAuthState(data.data, data.token);
 
-            socket.emit("logged", data.data.user)
-
             navigate('/')
 
         } catch (error) {

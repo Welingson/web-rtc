@@ -30,7 +30,6 @@ app.register(authRoutes)
 
 
 
-
 try {
     await app.listen({
         port: 3000,

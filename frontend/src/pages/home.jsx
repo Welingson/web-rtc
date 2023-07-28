@@ -4,6 +4,18 @@ import { api } from "../api/api"
 
 import { useAuth } from "../context/authContext";
 
+import {
+  getUserMedia,
+  createPeerConnection,
+  initCreateOffer,
+  initCreateAnswer,
+  initIceCandidate,
+  setCaller,
+  setIsCaller,
+  setReceiver,
+  initSetRemoteDescription
+} from "../services/call";
+
 import { socket } from "../services/socket";
 
 export function Home() {
@@ -12,34 +24,101 @@ export function Home() {
   const { authState, clearAuthState } = useAuth();
 
   useEffect(() => {
+    socket.emit('createRoom', authState.user.user);
+
+    return () => {
+      socket.off('createRoom')
+    }
+  }, []);
+
+  useEffect(() => {
 
     function loggedUser(user) {
       setUsers(prevUsers => [...prevUsers, user.user])
-
     }
 
     function loggedOut(user) {
-
       setUsers(users.filter((u) => u.id !== user.id))
     }
 
-    function answerCall(from) {
-      console.log('Chamada recebida de: ' + from);
+    async function offerCall(from) {
+      console.log("Chamada recebida de " + from);
+
+      if (confirm("Chamada recebida de " + from)) {
+        if (await getUserMedia()) {
+          socket.emit("answerCall", { from: authState.user.user, to: from });
+
+        }
+      }
+
+      // if (await getUserMedia()) {
+
+      // }
+
+    }
+
+    async function answerCall(user) {
+      console.log(user + " aceitou sua chamada");
+      if (await getUserMedia()) {
+
+        //seta o nome do usuário que faz a chamada
+        setCaller(authState.user.user);
+
+        //seta o nome do usuário que aceita a chamada
+        setReceiver(user);
+
+        //seta true
+        setIsCaller();
+
+        createPeerConnection();
+        initCreateOffer();
+
+      };
+
+    }
+
+    function candidate(event) {
+      initIceCandidate(event);
+    }
+
+    function offer(sessionDesc) {
+      console.log("Oferta recebida de: " + sessionDesc.caller, sessionDesc);
+
+      //seta o usuário receptor
+      setReceiver(authState.user.user);
+
+      //seta o usuário que faz a chamada
+      setCaller(sessionDesc.caller)
+
+      initCreateAnswer(sessionDesc.event);
+    }
+
+    function answer(event) {
+      initSetRemoteDescription(event);
     }
 
     socket.on('logged', loggedUser)
     socket.on('loggedOut', loggedOut);
+    socket.on('offerCall', offerCall);
     socket.on('answerCall', answerCall);
+    socket.on('candidate', candidate);
+    socket.on('offer', offer)
+    socket.on('answer', answer)
 
     return () => {
       socket.off('logged', loggedUser)
       socket.off('loggedOut', loggedOut)
+      socket.off('offerCall', offerCall);
       socket.off('answerCall', answerCall);
+      socket.off('candidate', candidate);
+      socket.off('offer', offer)
+      socket.off('answer', answer)
 
     }
 
   }, [users])
 
+  //carrega os usuários
   useEffect(() => {
 
     const loadUsers = async () => {
@@ -60,21 +139,21 @@ export function Home() {
 
     loadUsers();
 
-
   }, [])
 
-  
+  //emite uma oferta de chamada
   const handleCall = (user) => {
+    socket.emit('offerCall', { to: user, from: authState.user.user });
 
-    socket.emit('offerCall', { user: user, from: authState.user.user });
   }
-
+  //desconecta o usuário
   const handleLogout = async () => {
     await api.post('/auth/logout', { id: authState.user.id });
 
     clearAuthState();
 
   }
+
 
 
   return (
