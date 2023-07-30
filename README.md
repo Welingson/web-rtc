@@ -6,7 +6,7 @@ App de chamada de voz usando webrtc
 
 1. Clone este repositório
 2. Execute o comando `npm install` dentro de frontend e backend 
-3. Dentro de backend execute `node src/server.js` 
+3. Dentro de backend execute `node src/server.js` (Node ^18)
 4. Dentro de frontend execute `npm run dev` 
 
 ## Como usar
