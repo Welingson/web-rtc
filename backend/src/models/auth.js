@@ -53,7 +53,6 @@ export async function logout({ id }) {
     try {
 
         const data = await fs.promises.readFile(process.env.JSON_USERS, 'utf8');
-
         const userData = JSON.parse(data).data;
         const userFound = userData.find((u) => u.id === id);
 
@@ -63,12 +62,8 @@ export async function logout({ id }) {
 
         return id;
 
-
-
     } catch (error) {
         console.log('Erro ao ler arquivo json: ' + error);
 
     }
-
-
 }

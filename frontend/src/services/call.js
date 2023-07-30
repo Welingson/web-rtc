@@ -35,9 +35,7 @@ function addLocalStream(stream) {
 }
 
 function onAddStream(event) {
-
     remoteAudio.srcObject = event.stream
-
     remoteStream = event.stream;
 }
 
@@ -82,7 +80,6 @@ function setLocalAndAnswer(sessionDesc) {
         sdp: sessionDesc,
         caller: caller
     })
-
 }
 
 export const initSetRemoteDescription = (event) => {
@@ -103,8 +100,6 @@ export const initCreateAnswer = (event) => {
 function onIceCandidate(event) {
     let user = isCaller ? receiver : caller;
 
-    console.log(event.candidate);
-
     if (event.candidate) {
         socket.emit("candidate", {
             type: 'candidate',
@@ -113,9 +108,7 @@ function onIceCandidate(event) {
             candidate: event.candidate.candidate,
             sendTo: user
         })
-
     }
-
 }
 
 export const initIceCandidate = (event) => {
@@ -128,17 +121,13 @@ export const initIceCandidate = (event) => {
 
 }
 
-
 export const createPeerConnection = () => {
 
     rtcPeerConnection = new RTCPeerConnection(iceServers)
 
     rtcPeerConnection.onicecandidate = onIceCandidate;
-
     rtcPeerConnection.onaddstream = onAddStream;
     rtcPeerConnection.addStream(localStream);
-
-
 
 }
 

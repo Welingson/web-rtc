@@ -6,7 +6,6 @@ export const io = new Server({
     }
 }).listen(3333).on("connection", (socket) => {
 
-
     //cria a sala quando o usuário entra no home do app após login
     socket.on("createRoom", (user) => {
         socket.join(user);

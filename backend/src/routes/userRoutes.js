@@ -1,6 +1,5 @@
 import { users} from "../models/user.js"
 
- 
 export async function userRoutes(app){
    app.get('/users', async(req, res)=>{
 

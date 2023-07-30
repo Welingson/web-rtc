@@ -2,12 +2,10 @@ import { React, useState } from 'react'
 import { api } from '../api/api';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/authContext';
-import { socket } from '../services/socket';
-
 
 export function Login() {
 
-    const {authState, updateAuthState} = useAuth();
+    const {updateAuthState} = useAuth();
 
     const [user, setUser] = useState('');
     const [password, setPassword] = useState('');

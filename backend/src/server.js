@@ -14,7 +14,6 @@ config()
 
 const app = Fastify({
     logger: true,
-
 })
 
 app.register(cors, {
@@ -27,8 +26,6 @@ app.register(fastifyJwt, {
 
 app.register(homeRoutes)
 app.register(authRoutes)
-
-
 
 try {
     await app.listen({
