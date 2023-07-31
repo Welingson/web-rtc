@@ -8,9 +8,7 @@ import { authRoutes } from './routes/authRoutes.js';
 
 import { io } from './services/socket.js';
 
-import { config } from 'dotenv';
-
-config()
+import './config/dotenv.js';
 
 const app = Fastify({
     logger: true,
@@ -29,7 +27,7 @@ app.register(authRoutes)
 
 try {
     await app.listen({
-        port: 3000,
+        port: process.env.PORT,
 
     })
 } catch (error) {
