@@ -2,9 +2,11 @@ import { getIO } from "./socket.js";
 
 export const callSignaling = () => {
 
-    getIO().on("connection", (socket) => {
+    const io = getIO();
+
+    io.on("connection", (socket) => {
         socket.on("call", () => {
-            getIO().emit("msg", "Chamada recebida");
+            io.emit("msg", "Chamada recebida");
         })
 
         // cria a sala quando o usuário entra no home do app após login
