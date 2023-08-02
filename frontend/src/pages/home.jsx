@@ -24,7 +24,7 @@ export function Home() {
   const { authState, clearAuthState } = useAuth();
 
   useEffect(() => {
-    socket.emit('createRoom', authState.user.user);
+    socket.emit('createRoom', authState.user);
 
     return () => {
       socket.off('createRoom')
@@ -34,7 +34,7 @@ export function Home() {
   useEffect(() => {
 
     function loggedUser(user) {
-      setUsers(prevUsers => [...prevUsers, user.user])
+      setUsers(prevUsers => [...prevUsers, user.data])
     }
 
     function loggedOut(user) {
@@ -46,7 +46,7 @@ export function Home() {
 
       if (confirm("Chamada recebida de " + from)) {
         if (await getUserMedia()) {
-          socket.emit("answerCall", { from: authState.user.user, to: from });
+          socket.emit("answerCall", { from: authState.user, to: from });
 
         }
       }
@@ -58,7 +58,7 @@ export function Home() {
       if (await getUserMedia()) {
 
         //seta o nome do usuário que faz a chamada
-        setCaller(authState.user.user);
+        setCaller(authState.user);
 
         //seta o nome do usuário que aceita a chamada
         setReceiver(user);
@@ -81,7 +81,7 @@ export function Home() {
       console.log("Oferta recebida de: " + sessionDesc.caller, sessionDesc);
 
       //seta o usuário receptor
-      setReceiver(authState.user.user);
+      setReceiver(authState.user);
 
       //seta o usuário que faz a chamada
       setCaller(sessionDesc.caller)
@@ -93,8 +93,9 @@ export function Home() {
       initSetRemoteDescription(event);
     }
 
-    socket.on('logged', loggedUser)
-    socket.on('loggedOut', loggedOut);
+    socket.on('login', loggedUser)
+    socket.on('logout', loggedOut);
+
     socket.on('offerCall', offerCall);
     socket.on('answerCall', answerCall);
     socket.on('candidate', candidate);
@@ -102,8 +103,9 @@ export function Home() {
     socket.on('answer', answer)
 
     return () => {
-      socket.off('logged', loggedUser)
-      socket.off('loggedOut', loggedOut)
+      socket.off('login', loggedUser)
+      socket.off('logout', loggedOut)
+
       socket.off('offerCall', offerCall);
       socket.off('answerCall', answerCall);
       socket.off('candidate', candidate);
@@ -121,8 +123,8 @@ export function Home() {
 
       try {
 
-        const data = await api.get('/').then((response) => {
-          return response.data;
+        const data = await api.get('/user').then((response) => {
+          return response.data.data;
         });
 
         if (data) setUsers(data)
@@ -139,12 +141,13 @@ export function Home() {
 
   //emite uma oferta de chamada
   const handleCall = (user) => {
-    socket.emit('offerCall', { to: user, from: authState.user.user });
+
+    socket.emit('offerCall', { to: user, from: authState.user });
 
   }
   //desconecta o usuário
   const handleLogout = async () => {
-    await api.post('/auth/logout', { id: authState.user.id });
+    await api.post('/logout', { id: authState.id });
 
     clearAuthState();
 
@@ -155,7 +158,7 @@ export function Home() {
     <>
       <h1>Usuários</h1>
 
-      <p>Usuário logado: {authState.user.user}</p>
+      <p>Usuário logado: {authState.user}</p>
       <button onClick={handleLogout}>Sair</button>
       <hr />
 
@@ -168,7 +171,7 @@ export function Home() {
         </thead>
         <tbody>
           {users.map((user, index) => {
-            if (user.user !== authState.user.user) {
+            if (user.user !== authState.user) {
               return (
                 <tr key={index}>
                   <td>{user.user}</td>

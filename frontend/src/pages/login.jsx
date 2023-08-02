@@ -5,7 +5,7 @@ import { useAuth } from '../context/authContext';
 
 export function Login() {
 
-    const {updateAuthState} = useAuth();
+    const {authState, updateAuthState} = useAuth();
 
     const [user, setUser] = useState('');
     const [password, setPassword] = useState('');
@@ -15,14 +15,14 @@ export function Login() {
         e.preventDefault()
 
         try {
-            const data = await api.post('auth/login', {
+            const data = await api.post('/login', {
                 user: user,
                 password: password
             }).then((response) => {
-                return response.data;
+                return response.data.data;
             });
 
-            updateAuthState(data.data, data.token);
+            updateAuthState(data);
 
             navigate('/')
 
