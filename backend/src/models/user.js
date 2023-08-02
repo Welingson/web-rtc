@@ -1,6 +1,6 @@
 import fs from 'fs';
 
-export async function users() {
+export async function listUsers() {
 
     try {
 
@@ -11,7 +11,7 @@ export async function users() {
         //retorna apenas usuários logados
         const loggedUsers = jsonData.data.filter((user) => user.isLogged);
 
-        return loggedUsers;
+        return loggedUsers.length ? loggedUsers : false;
 
 
     } catch (error) {

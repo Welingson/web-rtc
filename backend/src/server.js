@@ -1,35 +1,28 @@
-import Fastify from 'fastify';
-
-import cors from '@fastify/cors';
-import fastifyJwt from '@fastify/jwt'
-
-import { homeRoutes } from './routes/homeRoutes.js';
-import { authRoutes } from './routes/authRoutes.js';
-
-import { io } from './services/socket.js';
-
 import './config/dotenv.js';
+import express from 'express';
+import cors from 'cors'
+import { createServer } from 'http'
 
-const app = Fastify({
-    logger: true,
-})
+import { initIO } from './services/socket.js';
+import { callSignaling } from './services/callSignaling.js';
 
-app.register(cors, {
-    origin: true
-})
+import auth from './routes/auth.js';
+import user from './routes/user.js';
 
-app.register(fastifyJwt, {
-    secret: process.env.JWT_SECRET_KEY
-})
-
-app.register(homeRoutes)
-app.register(authRoutes)
-
-try {
-    await app.listen({
-        port: process.env.PORT,
-
-    })
-} catch (error) {
-    app.log.error(error)
+const app = express();
+const corsOption = {
+    origin: "*"
 }
+app.use(cors(corsOption));
+app.use(express.json());
+app.use(auth);
+app.use(user);
+
+const httpServer = createServer(app);
+
+initIO(httpServer)
+callSignaling();
+
+httpServer.listen(process.env.PORT, () => {
+    console.log(`Express e Socket.IO rodando na porta ${process.env.PORT}`)
+})

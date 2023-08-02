@@ -1,4 +1,6 @@
 import fs from 'fs';
+import jwt from 'jsonwebtoken';
+
 
 async function setLogged(userId, userData, logged = true) {
 
@@ -20,8 +22,8 @@ async function setLogged(userId, userData, logged = true) {
     })
 
     return true;
-
 }
+
 
 export async function login({ user, password }) {
 
@@ -38,7 +40,10 @@ export async function login({ user, password }) {
         return {
             user: userFound.user,
             id: userFound.id,
-            level: userFound.level
+            level: userFound.level,
+            token: jwt.sign(userFound, process.env.JWT_SECRET_KEY, {
+                expiresIn: process.env.JWT_TOKEN_EXPIRE
+            })
         }
 
 
