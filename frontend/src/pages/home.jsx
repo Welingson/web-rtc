@@ -22,17 +22,24 @@ import { Call } from "../components/Call";
 
 export function Home() {
 
+  //lista de usuários
   const [users, setUsers] = useState([]);
+
+  //dados de autenticação
   const { authState, clearAuthState } = useAuth();
 
+  //controla o componente de chamada 
   const [openModalCall, setOpenModalCall] = useState(false);
 
-  const [userCall, setUserCall] = useState('')
+  //
+  const [userCall, setUserCall] = useState(null)
   const [callEvents, setCallEvents] = useState('');
 
   useEffect(() => {
-    socket.emit('createRoom', authState.user);
 
+    //quando o componente é montado o servidor socket cria
+    //a room do usuário
+    socket.emit('createRoom', authState.user);
     return () => {
       socket.off('createRoom')
     }
@@ -40,14 +47,15 @@ export function Home() {
 
   useEffect(() => {
 
+    //atualiza a lista de usuários que estão logados
     function loggedUser(user) {
       setUsers(prevUsers => [...prevUsers, user.data])
     }
-
     function loggedOut(user) {
       setUsers(users.filter((u) => u.id !== user.id))
     }
 
+    //recebe a oferta de chamada
     async function offerCall(from) {
       console.log("Chamada recebida de " + from);
 
@@ -60,6 +68,7 @@ export function Home() {
       }
     }
 
+    //receba a resposta da oferta de chamada
     async function answerCall(user) {
       console.log(user + " aceitou sua chamada");
       if (await getUserMedia()) {
@@ -70,11 +79,12 @@ export function Home() {
         //seta o nome do usuário que aceita a chamada
         setReceiver(user);
 
-        //seta true
+        //seta true para controle de candidatos ICE
         setIsCaller();
 
         createPeerConnection();
         initCreateOffer();
+
 
         setCallEvents('')
 
@@ -148,6 +158,7 @@ export function Home() {
 
   //emite uma notificação de chamada
   const handleCall = (user) => {
+    //exibe o componente de info da chamada com informações da chamada
     setOpenModalCall(true);
     setUserCall(user);
     setCallEvents('waitingReply');
@@ -163,6 +174,7 @@ export function Home() {
 
   }
 
+  //oculta o componente de info de chamada
   const closeModal = () => {
     setOpenModalCall(false);
   }
@@ -179,7 +191,14 @@ export function Home() {
 
         <UsersTable users={users} handleCall={handleCall} />
 
-        {openModalCall && <Call closeModal={closeModal} userCall={userCall} callEvents={callEvents}/>}
+        {/*  */}
+        {openModalCall &&
+          <Call
+            closeModal={closeModal}
+            userCall={userCall}
+            callEvents={callEvents}
+          />
+        }
       </section>
 
     </>

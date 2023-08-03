@@ -22,22 +22,25 @@ const callEventsMsg = {
 	callDeclined: "Chamada recusada",
 }
 
-
-
+/**
+ *  EXIBE INFORMAÇÕES DA CHAMADA (tempo, usuários da chamada, audio etc)
+ * 
+ * closeModal = função do componente home que oculta esse componente
+ * userCall = usuário da chamada
+ * callEvents = eventos e status da chamada, exemplo: 
+ * 'Aguardando resposta', 'Chamda recusada' etc
+ *
+ */
 export function Call({ closeModal, userCall, callEvents }) {
 
 	const { authState } = useAuth();
-
-	useEffect(() => {
-
-
-	}, [])
 
 
 	return (
 		<>
 			<Section>
-				<div>{userCall}</div>
+
+				<div>{userCall}</div> 
 				<div>{callEvents !== '' ? callEventsMsg[callEvents] : ''}</div>
 				<div>
 					<button>Ações da chamada</button>
