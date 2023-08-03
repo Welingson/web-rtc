@@ -17,11 +17,18 @@ import {
 } from "../services/call";
 
 import { socket } from "../services/socket";
+import { UsersTable } from "../components/UserTable";
+import { Call } from "../components/Call";
 
 export function Home() {
 
   const [users, setUsers] = useState([]);
   const { authState, clearAuthState } = useAuth();
+
+  const [openModalCall, setOpenModalCall] = useState(false);
+
+  const [userCall, setUserCall] = useState('')
+  const [callEvents, setCallEvents] = useState('');
 
   useEffect(() => {
     socket.emit('createRoom', authState.user);
@@ -47,10 +54,10 @@ export function Home() {
       if (confirm("Chamada recebida de " + from)) {
         if (await getUserMedia()) {
           socket.emit("answerCall", { from: authState.user, to: from });
-
+          setOpenModalCall(true);
+          setUserCall(from)
         }
       }
-
     }
 
     async function answerCall(user) {
@@ -69,6 +76,8 @@ export function Home() {
         createPeerConnection();
         initCreateOffer();
 
+        setCallEvents('')
+
       };
 
     }
@@ -77,15 +86,14 @@ export function Home() {
       initIceCandidate(event);
     }
 
+
     function offer(sessionDesc) {
       console.log("Oferta recebida de: " + sessionDesc.caller, sessionDesc);
 
       //seta o usuário receptor
       setReceiver(authState.user);
-
       //seta o usuário que faz a chamada
       setCaller(sessionDesc.caller)
-
       initCreateAnswer(sessionDesc.event);
     }
 
@@ -131,7 +139,6 @@ export function Home() {
 
       } catch (error) {
         console.error('Falha ao buscar dados: ', error);
-
       }
     }
 
@@ -139,8 +146,11 @@ export function Home() {
 
   }, [])
 
-  //emite uma oferta de chamada
+  //emite uma notificação de chamada
   const handleCall = (user) => {
+    setOpenModalCall(true);
+    setUserCall(user);
+    setCallEvents('waitingReply');
 
     socket.emit('offerCall', { to: user, from: authState.user });
 
@@ -153,35 +163,25 @@ export function Home() {
 
   }
 
+  const closeModal = () => {
+    setOpenModalCall(false);
+  }
+
 
   return (
     <>
-      <h1>Usuários</h1>
+      <section>
+        <h1>Usuários</h1>
 
-      <p>Usuário logado: {authState.user}</p>
-      <button onClick={handleLogout}>Sair</button>
-      <hr />
+        <p>Usuário logado: {authState.user}</p>
+        <button onClick={handleLogout}>Sair</button>
+        <hr />
 
-      <table>
-        <thead>
-          <tr>
-            <th>Usuário</th>
-            <th>Ação</th>
-          </tr>
-        </thead>
-        <tbody>
-          {users.map((user, index) => {
-            if (user.user !== authState.user) {
-              return (
-                <tr key={index}>
-                  <td>{user.user}</td>
-                  <td><button onClick={() => { handleCall(user.user) }}>Ligar</button></td>
-                </tr>
-              )
-            }
-          })}
-        </tbody>
-      </table >
+        <UsersTable users={users} handleCall={handleCall} />
+
+        {openModalCall && <Call closeModal={closeModal} userCall={userCall} callEvents={callEvents}/>}
+      </section>
+
     </>
   )
 }
