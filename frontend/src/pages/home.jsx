@@ -272,7 +272,7 @@ export function Home() {
   return (
     <>
       <section>
-        <h1>Usuários</h1>
+        <h1>Home</h1>
 
         <p>Usuário logado: {authState.user}</p>
         <button onClick={handleLogout}>Sair</button>
