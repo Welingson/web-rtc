@@ -34,17 +34,12 @@ function addLocalStream(stream) {
     localStream = stream
 }
 
-function onAddStream(event) {
-    remoteAudio.srcObject = event.stream
-    remoteStream = event.stream;
-}
-
 function onAddTrack(event) {
     if (event.track.kind === 'audio') {
         remoteAudio.srcObject = event.streams[0];
     }
 
-     // if (event.track.kind === 'video') {
+    // if (event.track.kind === 'video') {
     //     remoteVideo.srcObject = event.streams[0];
     // }
 
@@ -154,4 +149,25 @@ export const closeConnection = () => {
 
     return true;
 
+}
+
+//envia uma notificação de chamada
+export const emitCallNotification = (users) => {
+    socket.emit('callNotification', users)
+}
+
+//envia notificaçaõ de resposta da notificação de chamada
+export const emitReplyCallNotification = (users) => {
+    socket.emit('replyCallNotification', users)
+
+}
+
+//envia notificação de usuário desconectado
+export const emitCloseConnection = (users) => {
+    socket.emit('closeConnection', users)
+}
+
+//envia notificação de rejeição de chamada
+export const emitRejectCall = (users) => {
+    socket.emit('rejectedCall', users);
 }

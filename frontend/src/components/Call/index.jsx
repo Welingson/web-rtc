@@ -19,9 +19,9 @@ export function Call({ closeCall, userCall }) {
 }
 
 /**
- * EXIBE UMA MENSAGEM DE ESPERA
+ * EXIBE UMA MENSAGEM DE 'AGUARDANDO RESPOSTA'
  */
-export function WaitingReply({userCall}) {
+export function WaitingReply({ userCall }) {
 
   return (<>
     <div>
@@ -31,13 +31,28 @@ export function WaitingReply({userCall}) {
 }
 
 /**
- * EXIBE UMA MENSAGEM CASO UM USUÁRIO SE DISCONNECT 
+ * EXIBE UMA MENSAGEM CASO UM USUÁRIO SE DESCONECTE OU REJEITE A CHAMADA
  */
-export function DisconnectCall({userCall, closeDisconnecModal}) {
+export function DisconnectCall({message, closeDisconnecModal }) {
   return (<>
     <div>
-      <div>{userCall} desconectou</div>
+      <div>{message}</div>
       <button onClick={closeDisconnecModal}>Fechar</button>
     </div>
   </>)
+}
+
+/**
+ * EXIBE UM ELEMENTO COM BOTÕES DE ACEITAR OU RECUSAR CHAMADA
+ */
+export function IncomingCall({ userCall, handleIncomingCall }) {
+
+  return (<>
+    <div>
+      <div>Chamada recebida de {userCall}</div>
+      <button onClick={()=> handleIncomingCall(true)}>Aceitar</button>
+      <button onClick={()=> handleIncomingCall(false)}>Recusar</button>
+    </div>
+  </>)
+
 }

@@ -15,13 +15,18 @@ export const callSignaling = () => {
         })
 
         //envia para outro usuário uma notificação de chamada
-        socket.on("offerCall", (user) => {
-            io.to(user.to).emit("offerCall", user.from);
+        socket.on("callNotification", (user) => {
+            io.to(user.to).emit("callNotification", user.from);
         })
 
         //envia notificação quando o usuário aceita chamada
-        socket.on("answerCall", (user) => {
-            io.to(user.to).emit("answerCall", user.from);
+        socket.on("replyCallNotification", (user) => {
+            io.to(user.to).emit("replyCallNotification", user.from);
+        })
+
+        //envia notificação de chamada recusada
+        socket.on("rejectedCall", (user) => {
+            io.to(user.to).emit("rejectedCall", user.from);
         })
 
         //adiciona os candidados ICE

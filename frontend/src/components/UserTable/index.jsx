@@ -3,8 +3,8 @@ import { React, useEffect, useState } from 'react'
 import { useAuth } from "../../context/authContext";
 
 
-export function UsersTable({ users, handleCall }) {
-	const { authState, clearAuthState } = useAuth();
+export function UsersTable({ users, handleCallNotification }) {
+	const { authState} = useAuth();
 
 
 
@@ -25,7 +25,7 @@ export function UsersTable({ users, handleCall }) {
 								<tr key={index}>
 									<td>{user.user}</td>
 									<td>Online</td>
-									<td><button onClick={() => { handleCall(user.user) }}>Ligar</button></td>
+									<td><button onClick={() => { handleCallNotification(user.user) }}>Ligar</button></td>
 								</tr>
 							)
 						}
