@@ -38,6 +38,11 @@ export const callSignaling = () => {
         socket.on("answer", (event) => {
             io.to(event.caller).emit("answer", event.sdp);
         })
+
+        //sinalização de encerramento de conexão webrtc
+        socket.on("closeConnection", (user) => {
+            io.to(user.to).emit("closeConnection", user.from);
+        })
     })
 }
 
