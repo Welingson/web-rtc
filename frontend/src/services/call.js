@@ -39,6 +39,17 @@ function onAddStream(event) {
     remoteStream = event.stream;
 }
 
+function onAddTrack(event) {
+    if (event.track.kind === 'audio') {
+        remoteAudio.srcObject = event.streams[0];
+    }
+
+     // if (event.track.kind === 'video') {
+    //     remoteVideo.srcObject = event.streams[0];
+    // }
+
+}
+
 export const setIsCaller = () => {
     isCaller = true;
 }
@@ -126,11 +137,21 @@ export const createPeerConnection = () => {
     rtcPeerConnection = new RTCPeerConnection(iceServers)
 
     rtcPeerConnection.onicecandidate = onIceCandidate;
-    rtcPeerConnection.onaddstream = onAddStream;
+    rtcPeerConnection.ontrack = onAddTrack;
     rtcPeerConnection.addStream(localStream);
 
 }
 
+//encerra conexão webrtc juntamente com a transmissão de audio
+export const closeConnection = () => {
 
+    if (!rtcPeerConnection) {
+        return false;
+    }
 
+    rtcPeerConnection.close();
+    localStream.getTracks().forEach(track => track.stop())
 
+    return true;
+
+}
