@@ -1,53 +1,43 @@
-import { socket } from "../../services/socket";
-
 import { Section } from './style'
 
-import {
-	getUserMedia,
-	createPeerConnection,
-	initCreateOffer,
-	initCreateAnswer,
-	initIceCandidate,
-	setCaller,
-	setIsCaller,
-	setReceiver,
-	initSetRemoteDescription
-} from "../../services/call";
-import { useEffect, useState } from "react";
+/**
+ * EXIBE INFORMAÇÕES DA CHAMADA (tempo, usuários da chamada, audio etc)
+ */
+export function Call({ closeCall, userCall }) {
 
-import { useAuth } from "../../context/authContext";
+  return (
+    <>
+      <Section>
+        <div>Chamada em andamento com {userCall}</div>
+        <div>
+          <button onClick={closeCall}>Desconectar</button>
+        </div>
+      </Section>
 
-const callEventsMsg = {
-	waitingReply: "Aguardando resposta",
-	callDeclined: "Chamada recusada",
+    </>
+  )
 }
 
 /**
- *  EXIBE INFORMAÇÕES DA CHAMADA (tempo, usuários da chamada, audio etc)
- * 
- * closeModal = função do componente home que oculta esse componente
- * userCall = usuário da chamada
- * callEvents = eventos e status da chamada, exemplo: 
- * 'Aguardando resposta', 'Chamda recusada' etc
- *
+ * EXIBE UMA MENSAGEM DE ESPERA
  */
-export function Call({ closeModal, userCall, callEvents }) {
+export function WaitingReply({userCall}) {
 
-	const { authState } = useAuth();
+  return (<>
+    <div>
+      <div>Aguardando resposta de {userCall}</div>
+    </div>
+  </>)
+}
 
-
-	return (
-		<>
-			<Section>
-
-				<div>{userCall}</div> 
-				<div>{callEvents !== '' ? callEventsMsg[callEvents] : ''}</div>
-				<div>
-					<button>Ações da chamada</button>
-					<button onClick={closeModal}>Cancelar</button>
-				</div>
-			</Section>
-
-		</>
-	)
+/**
+ * EXIBE UMA MENSAGEM CASO UM USUÁRIO SE DISCONNECT 
+ */
+export function DisconnectCall({userCall, closeDisconnecModal}) {
+  return (<>
+    <div>
+      <div>{userCall} desconectou</div>
+      <button onClick={closeDisconnecModal}>Fechar</button>
+    </div>
+  </>)
 }

@@ -6,6 +6,7 @@ import { useAuth } from "../context/authContext";
 
 import {
   getUserMedia,
+  closeConnection,
   createPeerConnection,
   initCreateOffer,
   initCreateAnswer,
@@ -18,7 +19,7 @@ import {
 
 import { socket } from "../services/socket";
 import { UsersTable } from "../components/UserTable";
-import { Call } from "../components/Call";
+import { Call, WaitingReply, DisconnectCall } from "../components/Call";
 
 export function Home() {
 
@@ -31,9 +32,10 @@ export function Home() {
   //controla o componente de chamada 
   const [openModalCall, setOpenModalCall] = useState(false);
 
-  //
+  const [openModalWaitingReply, setOpenModalWaitingReply] = useState(false);
+  const [openModalDisconnect, setOpenModalDisconnect] = useState(false);
+
   const [userCall, setUserCall] = useState(null)
-  const [callEvents, setCallEvents] = useState('');
 
   useEffect(() => {
 
@@ -47,7 +49,7 @@ export function Home() {
 
   useEffect(() => {
 
-    //atualiza a lista de usuários que estão logados
+    //atualiza a lista de usuários quando há login e logout
     function loggedUser(user) {
       setUsers(prevUsers => [...prevUsers, user.data])
     }
@@ -57,7 +59,6 @@ export function Home() {
 
     //recebe a oferta de chamada
     async function offerCall(from) {
-      console.log("Chamada recebida de " + from);
 
       if (confirm("Chamada recebida de " + from)) {
         if (await getUserMedia()) {
@@ -70,7 +71,6 @@ export function Home() {
 
     //receba a resposta da oferta de chamada
     async function answerCall(user) {
-      console.log(user + " aceitou sua chamada");
       if (await getUserMedia()) {
 
         //seta o nome do usuário que faz a chamada
@@ -85,8 +85,10 @@ export function Home() {
         createPeerConnection();
         initCreateOffer();
 
-
-        setCallEvents('')
+        //fecha o modal de 'aguardando resposta'
+        setOpenModalWaitingReply(false)
+        //abre o modal de chamada
+        setOpenModalCall(true)
 
       };
 
@@ -98,7 +100,6 @@ export function Home() {
 
 
     function offer(sessionDesc) {
-      console.log("Oferta recebida de: " + sessionDesc.caller, sessionDesc);
 
       //seta o usuário receptor
       setReceiver(authState.user);
@@ -111,6 +112,14 @@ export function Home() {
       initSetRemoteDescription(event);
     }
 
+    function handleCloseConnection(user) {
+      closeConnection();
+
+      setOpenModalCall(false);
+      setOpenModalDisconnect(true);
+
+    }
+
     socket.on('login', loggedUser)
     socket.on('logout', loggedOut);
 
@@ -119,6 +128,8 @@ export function Home() {
     socket.on('candidate', candidate);
     socket.on('offer', offer)
     socket.on('answer', answer)
+    socket.on('closeConnection', handleCloseConnection);
+
 
     return () => {
       socket.off('login', loggedUser)
@@ -127,12 +138,35 @@ export function Home() {
       socket.off('offerCall', offerCall);
       socket.off('answerCall', answerCall);
       socket.off('candidate', candidate);
-      socket.off('offer', offer)
-      socket.off('answer', answer)
+      socket.off('offer', offer);
+      socket.off('answer', answer);
+      socket.off('closeConnection', handleCloseConnection);
 
     }
 
   }, [users])
+
+
+  //emite uma notificação de chamada
+  const handleCall = (user) => {
+    socket.emit('offerCall', { to: user, from: authState.user });
+    setOpenModalWaitingReply(true);
+    setUserCall(user);
+
+
+  }
+
+  //oculta o componente de info de chamada e encerra conexão webrtc
+  const closeCall = () => {
+    setOpenModalCall(false);
+
+    if (closeConnection()) socket.emit('closeConnection', { from: authState.user, to: userCall })
+
+  }
+
+  const closeDisconnecModal = () => {
+    setOpenModalDisconnect(false);
+  }
 
   //carrega os usuários
   useEffect(() => {
@@ -156,16 +190,6 @@ export function Home() {
 
   }, [])
 
-  //emite uma notificação de chamada
-  const handleCall = (user) => {
-    //exibe o componente de info da chamada com informações da chamada
-    setOpenModalCall(true);
-    setUserCall(user);
-    setCallEvents('waitingReply');
-
-    socket.emit('offerCall', { to: user, from: authState.user });
-
-  }
   //desconecta o usuário
   const handleLogout = async () => {
     await api.post('/logout', { id: authState.id });
@@ -173,12 +197,6 @@ export function Home() {
     clearAuthState();
 
   }
-
-  //oculta o componente de info de chamada
-  const closeModal = () => {
-    setOpenModalCall(false);
-  }
-
 
   return (
     <>
@@ -191,14 +209,23 @@ export function Home() {
 
         <UsersTable users={users} handleCall={handleCall} />
 
-        {/*  */}
         {openModalCall &&
           <Call
-            closeModal={closeModal}
+            closeCall={closeCall}
             userCall={userCall}
-            callEvents={callEvents}
           />
         }
+        {openModalDisconnect &&
+          <DisconnectCall
+            userCall={userCall}
+            closeDisconnecModal={closeDisconnecModal}
+          />
+        }
+        {
+          openModalWaitingReply &&
+          <WaitingReply userCall={userCall} />
+        }
+
       </section>
 
     </>
