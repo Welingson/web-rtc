@@ -24,6 +24,7 @@ import {
 import { socket } from "../services/socket";
 import { UsersTable } from "../components/UserTable";
 import { Call, WaitingReply, DisconnectCall, IncomingCall } from "../components/Call";
+import { pauseAudio, playAudio } from "../utils/audioUtils";
 
 export function Home() {
 
@@ -41,9 +42,6 @@ export function Home() {
   const [disconnectMessage, setDisconnectMessage] = useState('');
   const [openIncomingCall, setOpenIncomingCall] = useState(false);
   const [userCall, setUserCall] = useState(null)
-
-  const [waitingReplyAudio, setWaitingReplyAudio] = useState(null);
-  const [incomingCallAudio, setIncomingCallAudio] = useState(null);
 
   //carrega os usuários
   useEffect(() => {
@@ -100,22 +98,6 @@ export function Home() {
 
   })
 
-  useEffect(()=>{
-
-  
-    setWaitingReplyAudio(document.getElementById('waitingReply'));
-    setIncomingCallAudio(document.getElementById('incomingCall'));
-
-    document.getElementById('waitingReply').addEventListener('click', ()=>{
-      waitingReplyAudio.play();
-    })
-
-    document.getElementById('incomingCall').addEventListener('click', ()=>{
-      incomingCallAudio.play();
-    })
-
-
-  }, [waitingReplyAudio, incomingCallAudio])
 
   //troca de informações de chamada
   useEffect(() => {
@@ -126,13 +108,17 @@ export function Home() {
       setUserCall(from)
       setOpenIncomingCall(true)
 
-      //toque de chamada recebida
-      // handlePlayIncomingCallSound();
+      //toque ao receber chamada
+      playAudio('./audios/ringtone.wav', 1000)
 
     }
 
     //receba a resposta da oferta de chamada
     async function replyCallNotification(user) {
+
+      //para a reprodução do toque
+      pauseAudio()
+
       if (await getUserMedia()) {
 
         //seta o nome do usuário que faz a chamada
@@ -213,19 +199,15 @@ export function Home() {
 
   }, [users])
 
-  const handlePlayWaitingReplySound = () => {
-    console.log(waitingReplyAudio);
-  }
-
-  const handlePlayIncomingCallSound = () => {
-    console.log(incomingCallAudio);
-  }
-
   const handleIncomingCall = async (responseCall) => {
+
+    //para a reprodução do toque
+    pauseAudio();
 
     if (!responseCall) {
       emitRejectCall({ from: authState.user, to: userCall })
       setOpenIncomingCall(false);
+
       return;
     }
 
@@ -244,7 +226,9 @@ export function Home() {
 
     setUserCall(user);
     setOpenModalWaitingReply(true);
-    // handlePlayWaitingReplySound();
+    
+    //toque ao aguardar resposta
+    playAudio('./audios/ringbacktone.wav', 500);
 
   }
 
