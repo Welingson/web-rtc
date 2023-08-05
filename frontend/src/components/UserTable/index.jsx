@@ -1,12 +1,10 @@
-import { React, useEffect, useState } from 'react'
+import { React} from 'react'
 
 import { useAuth } from "../../context/authContext";
 
 
 export function UsersTable({ users, handleCallNotification }) {
 	const { authState} = useAuth();
-
-
 
 	return (
 		<>

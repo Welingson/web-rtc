@@ -14,7 +14,6 @@ export const playAudio = (audioUrl, interval) => {
     // Configurar o intervalo para reprodução repetida
     intervalId = setInterval(playAudioOnce, interval);
   
-    // Retornar o ID do intervalo para que possa ser gerenciado externamente
   };
 
   export const pauseAudio = ()=>{ clearInterval(intervalId) }
