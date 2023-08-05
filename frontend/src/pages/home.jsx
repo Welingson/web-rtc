@@ -107,6 +107,7 @@ export function Home() {
 
       setUserCall(from)
       setOpenIncomingCall(true)
+      setOpenModalDisconnect(false)
 
       //toque ao receber chamada
       playAudio('./audios/ringtone.wav', 1000)
@@ -143,6 +144,7 @@ export function Home() {
     }
 
     function rejectedCall(user) {
+      pauseAudio()
       setOpenModalWaitingReply(false);
       setDisconnectMessage(`${user} rejeitou sua chamada.`);
       setOpenModalDisconnect(true);
