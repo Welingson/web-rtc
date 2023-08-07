@@ -5,12 +5,11 @@ import { useAuth } from '../context/authContext'
 
 
 function RequireAuth({ children }) {
-    const authState = useAuth();
+    const {authVerify} = useAuth();
     const location = useLocation();
 
-    if (!authState.authState) {
+    if (!authVerify()) {
         return <Navigate to="/login" state={{ from: location }} />
-
     }
 
     return children;

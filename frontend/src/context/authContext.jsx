@@ -1,4 +1,5 @@
 import { createContext, useState, useContext } from 'react';
+import jwt_decode from 'jwt-decode'
 
 // Crie o contexto de autenticação
 const AuthContext = createContext();
@@ -30,6 +31,26 @@ function AuthProvider({ children }) {
     setAuthState(null);
   }
 
+  function authVerify() {
+
+    const authStateStorage = localStorage.getItem('user');
+
+    if (!authState || !authStateStorage) {
+      return false;
+    }
+
+    const tokenExpirationTime = jwt_decode(authState.token).exp;
+    //converter o valor de milissegundos para segundos
+    const currentTimeInSeconds = Date.now() / 1000;
+
+    // Compare a data de expiração com o tempo atual (em segundos)
+    if (tokenExpirationTime < currentTimeInSeconds) {
+      return false;
+    }
+
+    return true;
+  }
+
   // Fornecer o contexto para os componentes filhos
   return (
     <AuthContext.Provider
@@ -37,6 +58,7 @@ function AuthProvider({ children }) {
         authState,
         updateAuthState,
         clearAuthState,
+        authVerify
       }}
     >
       {children}

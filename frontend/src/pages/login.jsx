@@ -5,7 +5,7 @@ import { useAuth } from '../context/authContext';
 
 export function Login() {
 
-    const {authState, updateAuthState} = useAuth();
+    const {updateAuthState} = useAuth();
 
     const [user, setUser] = useState('');
     const [password, setPassword] = useState('');
