@@ -162,6 +162,7 @@ export function Home() {
       //seta o usuário que faz a chamada
       setCaller(sessionDesc.caller)
       initCreateAnswer(sessionDesc.event);
+
     }
 
     function answer(event) {
@@ -174,8 +175,6 @@ export function Home() {
       setDisconnectMessage(`${user} desconectou.`)
       setOpenModalDisconnect(true);
     }
-
-
 
     socket.on('callNotification', callNotification);
     socket.on('replyCallNotification', replyCallNotification);
@@ -201,6 +200,7 @@ export function Home() {
 
   }, [users])
 
+  //ação do botão de "aceitar" ou "rejeitar" chamada
   const handleIncomingCall = async (responseCall) => {
 
     //para a reprodução do toque
@@ -209,7 +209,6 @@ export function Home() {
     if (!responseCall) {
       emitRejectCall({ from: authState.user, to: userCall })
       setOpenIncomingCall(false);
-
       return;
     }
 
@@ -218,6 +217,8 @@ export function Home() {
       setOpenIncomingCall(false)
       setOpenModalCall(true)
     }
+
+    return;
   }
 
 
@@ -230,7 +231,7 @@ export function Home() {
     setOpenModalWaitingReply(true);
     
     //toque ao aguardar resposta
-    playAudio('./audios/ringbacktone.wav', 500);
+    playAudio('./audios/ringbacktone.wav', 1000);
 
   }
 
