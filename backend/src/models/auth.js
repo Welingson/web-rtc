@@ -1,6 +1,19 @@
 import fs from 'fs';
 import jwt from 'jsonwebtoken';
+import crypto from 'crypto'
 
+function generateToken(userId) {
+    const bytes = crypto.randomBytes(16);
+
+    const payload = {
+        userId: userId,
+        randomData: bytes.toString('hex') //exadecimal
+    }
+
+    return jwt.sign(payload, process.env.JWT_SECRET_KEY, {
+        expiresIn: process.env.JWT_TOKEN_EXPIRE
+    })
+}
 
 async function setLogged(userId, userData, logged = true) {
 
@@ -41,9 +54,7 @@ export async function login({ user, password }) {
             user: userFound.user,
             id: userFound.id,
             level: userFound.level,
-            token: jwt.sign(userFound, process.env.JWT_SECRET_KEY, {
-                expiresIn: process.env.JWT_TOKEN_EXPIRE
-            })
+            token: generateToken(userFound.id)
         }
 
 
