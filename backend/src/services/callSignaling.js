@@ -5,10 +5,7 @@ export const callSignaling = () => {
     const io = getIO();
 
     io.on("connection", (socket) => {
-        socket.on("call", () => {
-            io.emit("msg", "Chamada recebida");
-        })
-
+      
         // cria a sala quando o usuário entra no home do app após login
         socket.on("createRoom", (user) => {
             socket.join(user);
