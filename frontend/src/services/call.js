@@ -12,7 +12,27 @@ let remoteAudio = document.getElementById("remoteAudio");
 
 let iceServers = {
     iceServers: [
-        { 'urls': 'stun:stun.l.google.com:19302' }
+        { 'urls': 'stun:stun.l.google.com:19302' },
+        {
+            urls: "turn:a.relay.metered.ca:80",
+            username: "98679aeddcb9c63ef7c54377",
+            credential: "uvWhBrBHzlp78zIV",
+        },
+        {
+            urls: "turn:a.relay.metered.ca:80?transport=tcp",
+            username: "98679aeddcb9c63ef7c54377",
+            credential: "uvWhBrBHzlp78zIV",
+        },
+        {
+            urls: "turn:a.relay.metered.ca:443",
+            username: "98679aeddcb9c63ef7c54377",
+            credential: "uvWhBrBHzlp78zIV",
+        },
+        {
+            urls: "turn:a.relay.metered.ca:443?transport=tcp",
+            username: "98679aeddcb9c63ef7c54377",
+            credential: "uvWhBrBHzlp78zIV",
+        },
     ],
 }
 
@@ -86,6 +106,8 @@ function setLocalAndAnswer(sessionDesc) {
         sdp: sessionDesc,
         caller: caller
     })
+
+    console.log(caller);
 }
 
 export const initSetRemoteDescription = (event) => {
