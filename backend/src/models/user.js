@@ -11,7 +11,17 @@ export async function listUsers() {
         //retorna apenas usuários logados
         const loggedUsers = jsonData.data.filter((user) => user.isLogged);
 
-        return loggedUsers.length ? loggedUsers : false;
+        if (!loggedUsers.length) {
+            return false;
+        }
+
+        const listUsers = loggedUsers.map((user)=>({
+            id: user.id,
+            user: user.user,
+            level: user.level
+        }))
+
+        return listUsers;
 
 
     } catch (error) {

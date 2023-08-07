@@ -12,7 +12,13 @@ export const authController = {
             return;
         }
 
-        getIO().emit('login', { data: user });
+        const loginNotify = {
+            id: user.id,
+            user: user.user,
+            level: user.level
+        }
+
+        getIO().emit('login', { data: loginNotify });
 
         res.send({ data: user })
     },
