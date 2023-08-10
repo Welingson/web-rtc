@@ -5,6 +5,7 @@ import { api } from "../api/api"
 import { useAuth } from "../context/authContext";
 
 import {
+  createSocketRoom,
   emitCallNotification,
   emitReplyCallNotification,
   emitCloseConnection,
@@ -21,7 +22,7 @@ import {
   initSetRemoteDescription
 } from "../services/call";
 
-import { socket } from "../services/socket";
+import { getClientIO } from "../services/socket";
 import { UsersTable } from "../components/UserTable";
 import { Call, WaitingReply, DisconnectCall, IncomingCall } from "../components/Call";
 import { pauseAudio, playAudio } from "../utils/audioUtils";
@@ -33,6 +34,9 @@ export function Home() {
 
   //dados de autenticação
   const { authState, clearAuthState } = useAuth();
+
+  //socket
+  const socketClient = getClientIO();
 
   //controla o componente de chamada 
   const [openModalCall, setOpenModalCall] = useState(false);
@@ -70,30 +74,27 @@ export function Home() {
   * a room do usuário
    */
   useEffect(() => {
-
-
-    socket.emit('createRoom', authState.user);
-    return () => {
-      socket.off('createRoom')
-    }
+    createSocketRoom(authState.user)
   }, []);
 
   //atualiza a lista de usuários quando há login e logout
   useEffect(() => {
 
     function loggedUser(user) {
-      setUsers(prevUsers => [...prevUsers, user.data])
+      const loggedUser = (users.filter((u)=>u.user === user.data.user)).length;
+      if(loggedUser === 0) setUsers(prevUsers => [...prevUsers, user.data]);
+
     }
     function loggedOut(user) {
       setUsers(users.filter((u) => u.id !== user.id))
     }
 
-    socket.on('login', loggedUser)
-    socket.on('logout', loggedOut);
+    socketClient.on('login', loggedUser)
+    socketClient.on('logout', loggedOut);
 
     return () => {
-      socket.off('login', loggedUser)
-      socket.off('logout', loggedOut)
+      socketClient.off('login', loggedUser)
+      socketClient.off('logout', loggedOut)
     }
 
   })
@@ -176,25 +177,29 @@ export function Home() {
       setOpenModalDisconnect(true);
     }
 
-    socket.on('callNotification', callNotification);
-    socket.on('replyCallNotification', replyCallNotification);
-    socket.on('rejectedCall', rejectedCall)
-
-    socket.on('candidate', candidate);
-    socket.on('offer', offer)
-    socket.on('answer', answer)
-    socket.on('closeConnection', handleCloseConnection);
+    socketClient.on('callNotification', callNotification);
+    socketClient.on('replyCallNotification', replyCallNotification);
+    socketClient.on('rejectedCall', rejectedCall)
+    socketClient.on('candidate', candidate);
+    socketClient.on('offer', offer)
+    socketClient.on('answer', answer)
+    socketClient.on('closeConnection', handleCloseConnection);
+    
+    //futura notificação de erro
+    socketClient.on('connect_error', (err) => {
+      console.log(err.message);
+    });
 
 
     return () => {
-      socket.off('callNotification', callNotification);
-      socket.off('replyCallNotification', replyCallNotification);
-      socket.off('rejectedCall', rejectedCall)
-
-      socket.off('candidate', candidate);
-      socket.off('offer', offer);
-      socket.off('answer', answer);
-      socket.off('closeConnection', handleCloseConnection);
+      socketClient.off('callNotification', callNotification);
+      socketClient.off('replyCallNotification', replyCallNotification);
+      socketClient.off('rejectedCall', rejectedCall)
+      socketClient.off('candidate', candidate);
+      socketClient.off('offer', offer);
+      socketClient.off('answer', answer);
+      socketClient.off('closeConnection', handleCloseConnection);
+      socketClient.off('connect_error');
 
     }
 
