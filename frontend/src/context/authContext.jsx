@@ -21,6 +21,8 @@ function AuthProvider({ children }) {
     localStorage.setItem('user', JSON.stringify(userData));
 
     setAuthState(userData);
+
+    return true;
   }
 
   // Função para limpar o estado de autenticação (durante o logout)
@@ -35,7 +37,7 @@ function AuthProvider({ children }) {
 
     const authStateStorage = localStorage.getItem('user');
 
-    if (!authState || !authStateStorage) {
+    if (!authStateStorage) {
       return false;
     }
 
