@@ -1,4 +1,4 @@
-import { socket } from "./socket";
+import { getClientIO } from "./socket";
 
 let localStream;
 let rtcPeerConnection;
@@ -7,6 +7,7 @@ let remoteStream;
 let isCaller = false;
 let receiver = null;
 let caller = null;
+const socketClient = getClientIO();
 
 let remoteAudio = document.getElementById("remoteAudio");
 
@@ -34,6 +35,10 @@ let iceServers = {
             credential: "uvWhBrBHzlp78zIV",
         },
     ],
+}
+
+export const createSocketRoom = (user) => {
+    socketClient.emit('createRoom', user);
 }
 
 export const getUserMedia = async () => {
@@ -82,7 +87,7 @@ function setLocalAndOffer(sessionDesc) {
 
     rtcPeerConnection.setLocalDescription(sessionDesc)
 
-    socket.emit('offer', {
+    socketClient.emit('offer', {
         type: 'offer',
         sdp: sessionDesc,
         receiver: receiver,
@@ -101,13 +106,11 @@ function setLocalAndAnswer(sessionDesc) {
 
     rtcPeerConnection.setLocalDescription(sessionDesc);
 
-    socket.emit('answer', {
+    socketClient.emit('answer', {
         type: 'answer',
         sdp: sessionDesc,
         caller: caller
     })
-
-    console.log(caller);
 }
 
 export const initSetRemoteDescription = (event) => {
@@ -129,7 +132,7 @@ function onIceCandidate(event) {
     let user = isCaller ? receiver : caller;
 
     if (event.candidate) {
-        socket.emit("candidate", {
+        socketClient.emit("candidate", {
             type: 'candidate',
             label: event.candidate.sdpMLineIndex,
             id: event.candidate.sdpMid,
@@ -175,21 +178,20 @@ export const closeConnection = () => {
 
 //envia uma notificação de chamada
 export const emitCallNotification = (users) => {
-    socket.emit('callNotification', users)
+    socketClient.emit('callNotification', users)
 }
 
 //envia notificaçaõ de resposta da notificação de chamada
 export const emitReplyCallNotification = (users) => {
-    socket.emit('replyCallNotification', users)
-
+    socketClient.emit('replyCallNotification', users)
 }
 
 //envia notificação de usuário desconectado
 export const emitCloseConnection = (users) => {
-    socket.emit('closeConnection', users)
+    socketClient.emit('closeConnection', users)
 }
 
 //envia notificação de rejeição de chamada
 export const emitRejectCall = (users) => {
-    socket.emit('rejectedCall', users);
+    socketClient.emit('rejectedCall', users);
 }
