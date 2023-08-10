@@ -5,7 +5,7 @@ import { useAuth } from '../context/authContext';
 
 export function Login() {
 
-    const {updateAuthState} = useAuth();
+    const { updateAuthState } = useAuth();
 
     const [user, setUser] = useState('');
     const [password, setPassword] = useState('');
@@ -22,9 +22,7 @@ export function Login() {
                 return response.data.data;
             });
 
-            updateAuthState(data);
-
-            navigate('/')
+            if (updateAuthState(data)) navigate('/')
 
         } catch (error) {
             console.error('Falha ao tentar realizar login: ', error);
